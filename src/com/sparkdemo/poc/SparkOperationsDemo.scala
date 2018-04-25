@@ -39,7 +39,7 @@ object SparkOperationsDemo extends App {
   //Converting to scala lists
   val autoList = autoAllData.collect()
 
-  /*for (x <- autoList.take(5)) { 
+ /* for  (x <- autoList.take(5)) { 
     println(x) 
     }*/
 
@@ -49,19 +49,27 @@ object SparkOperationsDemo extends App {
 
   //Map and create a new RDD
   var tsvData = autoAllData.map(x => x.replace(",", "\t"))
-  tsvData.take(5)
+ for  (x <- tsvData.take(5)) { 
+    println(x) 
+    }
 
   //returns  the  header line
   val header1 = autoAllData.first
   // this will return only header .. since only for header .. s => s.equals(header1) is true .. rest for all this is false 
-  //val autoData = autoAllData.filter(s => s.equals(header1))
+  //val extractHeader = autoAllData.filter(s => s.equals(header1))
   
   // this will contain all records accept header , because only for first row i.e s.equals(header1) = ! (true)  , for other rows this 
   // s.equals(header1) = ! (false)
-   val autoData = autoAllData.filter(s => !s.equals(header1))
- /* for (x <- autoData) { 
+  // obtain onlt the filter
+ /*  val autoHeaderData = autoAllData.filter(s => s.equals(header1))
+  for (x <- autoHeaderData) { 
     println(x) 
     }*/
+  // obtain all the data removing the filter
+  val autoData = autoAllData.filter(s => !s.equals(header1))
+  for (x <- autoData) { 
+    println(x) 
+    }
 
   //Filter only for toyota cars and create a new RDD
   var toyotaData = autoAllData.filter(x => x.contains("toyota"))
@@ -80,11 +88,9 @@ object SparkOperationsDemo extends App {
 
   //cleanse and transform an RDD with a function
   def cleanseRDD(autoStr: String): String = {
-
     val attList = autoStr.split(",")
-
     if (attList(3).matches("two")) {
-      attList(3) = "2"
+      attList(3) = "2%"
     } else {
       attList(3) = "4"
     }
@@ -94,22 +100,33 @@ object SparkOperationsDemo extends App {
     attList.mkString(",")
   }
 
+  // modify the incomming data
   val cleanedData = autoData.map(cleanseRDD)
-  cleanedData.collect()
+ 
+    /*for (x <-  cleanedData.collect()) { 
+    println(x) 
+    }*/
 
   //Set operations
   val words1 = sc.parallelize(Array("hello", "war", "peace", "world"))
   val words2 = sc.parallelize(Array("war", "peace", "universe"))
 
-  words1.union(words2).distinct().collect()
+val wordUnion =  words1.union(words2).distinct().collect()
+/*for (x <-  wordUnion) { 
+    println(x) 
+    }*/
   words1.intersection(words2).collect()
-
+ /* for (x <-  words1) { 
+    println(x) 
+    }
+*/
   /*............................................................................
 	////   Actions
 	//............................................................................*/
 
   //reduce
   collData.reduce((x, y) => x + y)
+  
 
   //find the shortest line
   autoData.reduce((x, y) => if (x.length() < y.length) x else y)
